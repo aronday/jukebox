@@ -33,28 +33,34 @@
 
         .content {
             display: flex;
+            flex-wrap: wrap;
             justify-content: center;
             gap: 20px;
             margin-top: 20px;
+            width: 100%;
         }
 
         .embed-container {
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
+            max-width: 400px;
         }
 
         iframe {
             border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
         }
 
         header {
             margin: 20px 0;
         }
 
-            header img {
-                max-width: 150px;
-            }
+        header img {
+            max-width: 150px;
+        }
 
         .theme-switch {
             margin: 10px;
@@ -70,9 +76,9 @@
             gap: 5px;
         }
 
-            .theme-switch:hover {
-                opacity: 0.8;
-            }
+        .theme-switch:hover {
+            opacity: 0.8;
+        }
     </style>
 </head>
 <body>
@@ -87,14 +93,14 @@
 
     <div class="content">
         <div class="embed-container">
-            <iframe src="https://open.spotify.com/embed/playlist/6NTXFXG3G9l4wchB0Kte8T?utm_source=generator"
-                    width="450" height="800" frameBorder="0" allowfullscreen=""
+            <iframe src="https://open.spotify.com/embed/playlist/6NTXFXG3G9l4wchB0Kte8T?utm_source=generator" 
+                    height="500" frameBorder="0" allowfullscreen="" 
                     allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
         </div>
         <div class="embed-container">
             <iframe id="twitch-chat-embed"
-                    src="https://www.twitch.tv/embed/dayzerracing/chat?parent=juke.aron.day"
-                    width="450" height="800" frameBorder="0"></iframe>
+                    src="https://www.twitch.tv/embed/dayzerracing/chat?parent=juke.aron.day" 
+                    height="500" frameBorder="0"></iframe>
         </div>
     </div>
 

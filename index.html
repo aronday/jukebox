@@ -31,57 +31,30 @@
             transition: background-color 0.3s, color 0.3s;
         }
 
+        .content {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .embed-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        iframe {
+            border-radius: 12px;
+        }
+
         header {
             margin: 20px 0;
         }
 
-        header img {
-            max-width: 150px;
-        }
-
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            border: 1px solid var(--table-border-color);
-        }
-
-        table, th, td {
-            border: 1px solid var(--table-border-color);
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background-color: var(--header-bg-color);
-            cursor: pointer;
-            position: relative;
-        }
-
-        th:hover {
-            text-decoration: underline;
-        }
-
-        th[data-sort-direction="asc"]::after {
-            content: ' ▲';
-            position: absolute;
-            right: 10px;
-        }
-
-        th[data-sort-direction="desc"]::after {
-            content: ' ▼';
-            position: absolute;
-            right: 10px;
-        }
-
-        .loading {
-            margin-top: 20px;
-            font-size: 1.2em;
-            color: var(--text-color);
-        }
+            header img {
+                max-width: 150px;
+            }
 
         .theme-switch {
             margin: 10px;
@@ -97,32 +70,9 @@
             gap: 5px;
         }
 
-        .theme-switch:hover {
-            opacity: 0.8;
-        }
-
-        .search-input {
-            margin: 10px;
-            padding: 5px;
-            border: 1px solid var(--table-border-color);
-            border-radius: 5px;
-        }
-
-        .last-refreshed {
-            margin-top: 10px;
-            font-size: 0.9em;
-            color: var(--text-color);
-        }
-
-
-        a {
-            color: #1DB954;  /* Spotify Green */
-            text-decoration: none; /* Remove underline */
-        }
-
-        a:hover {
-            text-decoration: underline; /* Underline when hovered */
-        }
+            .theme-switch:hover {
+                opacity: 0.8;
+            }
     </style>
 </head>
 <body>
@@ -134,21 +84,19 @@
         <span id="theme-icon">🌙</span>
         <span id="theme-text">Dark Mode</span>
     </button>
-    <input type="text" class="search-input" placeholder="Search..." oninput="searchTable(this.value)" />
 
-    <div class="loading">Loading data...</div>
-    <div class="last-refreshed" style="display: none;" id="last-refreshed"></div>
-
-    <table id="data-table" style="display: none;">
-        <thead>
-            <tr>
-                <!-- Table headers will go here dynamically -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Table data will go here dynamically -->
-        </tbody>
-    </table>
+    <div class="content">
+        <div class="embed-container">
+            <iframe src="https://open.spotify.com/embed/playlist/6NTXFXG3G9l4wchB0Kte8T?utm_source=generator"
+                    width="450" height="800" frameBorder="0" allowfullscreen=""
+                    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+        </div>
+        <div class="embed-container">
+            <iframe id="twitch-chat-embed"
+                    src="https://www.twitch.tv/embed/dayzerracing/chat?parent=juke.aron.day"
+                    width="450" height="800" frameBorder="0"></iframe>
+        </div>
+    </div>
 
     <script>
         const userPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -177,122 +125,6 @@
                 themeText.textContent = 'Light Mode';
             }
         }
-
-        async function fetchData() {
-    const loadingDiv = document.querySelector('.loading');
-    const table = document.getElementById('data-table');
-    const lastRefreshedDiv = document.getElementById('last-refreshed');
-
-    try {
-        const response = await fetch('https://aronday.tines.com/webhook/766df4102667bd6ce8eb977c16fac35c/f99474c89c1417b738d3fd65d62e64b0?type=tracks');
-        const jsonData = await response.json();
-
-        loadingDiv.style.display = 'none';
-        table.style.display = 'table';
-
-        const tableHead = table.querySelector('thead tr');
-        const tableBody = table.querySelector('tbody');
-
-        tableHead.innerHTML = '';
-        tableBody.innerHTML = '';
-
-        // Define the desired order of columns (excluding Spotify)
-        const preferredOrder = ['Song #', 'Track', 'Artist'];
-
-        // Get all headers from the data (excluding 'Spotify')
-        const headers = Object.keys(jsonData[0]).filter(header => header !== 'Spotify');
-
-        // Combine preferred order with any remaining headers
-        const orderedHeaders = [...preferredOrder, ...headers.filter(header => !preferredOrder.includes(header))];
-
-        // Append the headers in the new order
-        orderedHeaders.forEach(header => {
-            const th = document.createElement('th');
-            th.textContent = header;
-            th.onclick = () => sortTableByColumn(header);
-            tableHead.appendChild(th);
-        });
-
-        // Populate the rows in the new order (excluding Spotify)
-        jsonData.forEach(row => {
-            const tr = document.createElement('tr');
-            orderedHeaders.forEach(header => {
-                const td = document.createElement('td');
-                if (header === 'Track') {
-                    // Wrap the track name with a link to Spotify
-                    const link = document.createElement('a');
-                    link.href = row['Spotify']; // Link to the Spotify URL
-                    link.target = '_blank'; // Open in new tab
-                    link.textContent = row[header]; // Display the track name
-                    td.appendChild(link);
-                } else {
-                    td.textContent = row[header];
-                }
-                tr.appendChild(td);
-            });
-            tableBody.appendChild(tr);
-        });
-
-        // Update "Last Refreshed" timestamp
-        const now = new Date();
-        lastRefreshedDiv.textContent = `Last Refreshed: ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
-        lastRefreshedDiv.style.display = 'block';
-
-        // Sort by "Song #" on initial load
-        sortTableByColumn('Song #', true);
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        loadingDiv.textContent = 'Failed to load data. Please try again later.';
-    }
-}
-
-        function searchTable(query) {
-            const table = document.getElementById('data-table');
-            const rows = table.querySelectorAll('tbody tr');
-
-            rows.forEach(row => {
-                const cells = Array.from(row.children);
-                const matches = cells.some(cell => cell.textContent.toLowerCase().includes(query.toLowerCase()));
-                row.style.display = matches ? '' : 'none';
-            });
-        }
-
-        function sortTableByColumn(column, initialLoad = false) {
-            const table = document.getElementById('data-table');
-            const tbody = table.querySelector('tbody');
-            const rows = Array.from(tbody.querySelectorAll('tr'));
-
-            const headers = Array.from(table.querySelectorAll('thead th'));
-            const columnIndex = headers.findIndex(th => th.textContent === column);
-
-            const currentSortDirection = headers[columnIndex].getAttribute('data-sort-direction');
-            const direction = initialLoad || currentSortDirection === 'desc' ? 'asc' : 'desc';
-
-            headers.forEach(th => th.removeAttribute('data-sort-direction'));
-            headers[columnIndex].setAttribute('data-sort-direction', direction);
-
-            const isNumeric = rows.every(row => !isNaN(parseFloat(row.children[columnIndex].textContent)));
-
-            rows.sort((rowA, rowB) => {
-                const cellA = rowA.children[columnIndex].textContent.trim();
-                const cellB = rowB.children[columnIndex].textContent.trim();
-
-                if (isNumeric) {
-                    return direction === 'asc'
-                        ? parseFloat(cellA) - parseFloat(cellB)
-                        : parseFloat(cellB) - parseFloat(cellA);
-                } else {
-                    return direction === 'asc'
-                        ? cellA.localeCompare(cellB)
-                        : cellB.localeCompare(cellA);
-                }
-            });
-
-            rows.forEach(row => tbody.appendChild(row));
-        }
-
-        fetchData();
-        setInterval(fetchData, 120000);
     </script>
 </body>
 </html>
